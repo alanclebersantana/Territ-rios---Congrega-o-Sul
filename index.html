@@ -404,7 +404,9 @@ html[data-theme="dark"] .mapscroll img{filter:invert(1) hue-rotate(180deg) contr
         <label class="f full"><span>Endereço do servidor</span><input type="text" id="syUrl" placeholder="https://script.google.com/macros/s/.../exec"></label>
         <label class="f full"><span>Código do grupo</span><input type="text" id="syG" placeholder="Ex.: sul-marialva"></label>
       </div>
-      <div class="acts"><button class="btn primary" id="btnSyncSave">Ligar sincronização</button><button class="btn" id="btnSync">Sincronizar agora</button></div>
+      <div class="acts"><button class="btn primary" id="btnSyncSave">Ligar sincronização</button>
+        <button class="btn" id="btnSync">Sincronizar agora</button>
+        <button class="btn" id="btnSyncAll">Reenviar tudo</button></div>
       <p class="note" style="text-align:left;margin-top:11px" id="syncInfo">Sem conexão configurada — o registro fica só neste aparelho.</p>
     </div>
     <div class="panel"><h3>Aparência</h3>
@@ -516,11 +518,40 @@ let SY={url:'',g:'',since:0}, syncing=false, syncT=null, lastOk=0;
 try{ const c=localStorage.getItem(SCFG); if(c) SY=Object.assign(SY,JSON.parse(c)); }catch(e){}
 function saveCfg(){ try{ localStorage.setItem(SCFG,JSON.stringify(SY)); }catch(e){} }
 
-function vazio(){ return {name:'',resp:'',assign:'',start:'',end:'',stop:'',notes:'',addr:'',started:false,ts:0}; }
+function vazio(){ return {name:'',resp:'',assign:'',start:'',end:'',stop:'',notes:'',addr:'',started:false,f:{},ts:0}; }
 function seed(){ const t={}; KEYS.forEach(k=>t[k]=vazio());
   return {v:3,t,p:{items:[],ts:0},s:{items:[],ts:0}}; }
 function persist(){ clearTimeout(saveT); saveT=setTimeout(()=>Store.save(DB),250); }
+const CAMPOS=['name','resp','assign','start','end','stop','notes','addr','started'];
 function touch(k){ if(!k) return; DB.t[k].ts=Date.now(); dirty.add(k); salvarFila(); persist(); schedule(); }
+/* grava um campo e carimba só ele: dois aparelhos podem mexer no mesmo
+   território em campos diferentes sem um apagar o do outro */
+function setT(k,campo,valor){
+  const t=DB.t[k]; if(!t) return;
+  if(t[campo]===valor) return;
+  t[campo]=valor; t.f=t.f||{}; t.f[campo]=Date.now();
+  touch(k);
+}
+function zerarT(k){
+  const t=DB.t[k], agora=Date.now();
+  const novo=vazio(); novo.f={}; CAMPOS.forEach(c=>novo.f[c]=agora);
+  novo.ts=agora; DB.t[k]=novo; dirty.add(k); salvarFila(); persist(); schedule();
+}
+/* mescla campo a campo: fica sempre o mais recente de cada um */
+function mesclarTerr(local,remoto,tsR){
+  const lf=local.f||{}, rf=remoto.f||{};
+  const out=Object.assign({},local); out.f=Object.assign({},lf);
+  let mudou=false;
+  CAMPOS.forEach(c=>{
+    const lt = lf[c]!=null? lf[c] : (local.ts||0);
+    const rt = rf[c]!=null? rf[c] : (tsR||0);
+    if(rt>lt && remoto[c]!==undefined && remoto[c]!==local[c]){
+      out[c]=remoto[c]; out.f[c]=rt; mudou=true;
+    }
+  });
+  out.ts=Math.max(local.ts||0, tsR||0);
+  return {t:out,mudou};
+}
 
 function status(k){ const t=DB.t[k]; if(t.end) return 'done'; return t.started? 'wip':'new'; }
 const rotulo={new:'A iniciar',wip:'Em andamento',done:'Concluído'};
@@ -627,20 +658,20 @@ function renderStart(){
   startbar.innerHTML=h;
   const bs=document.getElementById('btnStart');
   if(bs) bs.addEventListener('click',()=>{
-    t.started=true; if(!t.start) t.start=today();
-    touch(cur); fStart.value=t.start; renderStart(); toast('Iniciado em '+br(t.start));
+    setT(cur,'started',true); if(!t.start) setT(cur,'start',today());
+    fStart.value=t.start; renderStart(); toast('Iniciado em '+br(t.start));
   });
   const bd=document.getElementById('btnDone');
   if(bd) bd.addEventListener('click',()=>{
-    t.started=true; if(!t.start) t.start=today();
-    t.end=today(); touch(cur); fStart.value=t.start; fEnd.value=t.end;
+    setT(cur,'started',true); if(!t.start) setT(cur,'start',today());
+    setT(cur,'end',today()); fStart.value=t.start; fEnd.value=t.end;
     renderStart(); toast('Concluído em '+br(t.end));
   });
   const bu=document.getElementById('btnUndo');
-  if(bu) bu.addEventListener('click',()=>{ t.started=false; t.start='';
-    touch(cur); fStart.value=''; renderStart(); });
+  if(bu) bu.addEventListener('click',()=>{ setT(cur,'started',false); setT(cur,'start','');
+    fStart.value=''; renderStart(); });
   const bre=document.getElementById('btnReabrir');
-  if(bre) bre.addEventListener('click',()=>{ t.end=''; touch(cur); fEnd.value=''; renderStart(); toast('Território reaberto'); });
+  if(bre) bre.addEventListener('click',()=>{ setT(cur,'end',''); fEnd.value=''; renderStart(); toast('Território reaberto'); });
 }
 
 /* Google Maps */
@@ -661,7 +692,7 @@ function renderMaps(){
   btnMaps.onclick=()=>abrirMaps(endereco(cur));
   ruas.innerHTML=rs.map(r=>`<button class="chip" data-r="${esc(r)}">${esc(r)}</button>`).join('');
   ruas.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{
-    fAddr.value=b.dataset.r; DB.t[cur].addr=b.dataset.r; touch(cur); renderMaps(); toast('Endereço definido');
+    fAddr.value=b.dataset.r; setT(cur,'addr',b.dataset.r); renderMaps(); toast('Endereço definido');
   }));
 }
 try{ chkRota.checked=localStorage.getItem('territorios_rota')==='1'; }catch(e){}
@@ -672,7 +703,7 @@ function buildPeople(){ document.getElementById('people').innerHTML=people().map
 
 /* ---------- pontos de saída ---------- */
 function sitems(){ return (DB.s.items||[]).filter(i=>!i.del); }
-function touchSaidas(){ DB.s.ts=Date.now(); dirty.add(KSAIDA); salvarFila(); persist(); schedule(); }
+function touchSaidas(id){ DB.s.ts=Date.now(); if(id) dirty.add('s_'+id); salvarFila(); persist(); schedule(); }
 let editS=null, pickSel=new Set();
 function renderSaidas(){
   const l=sitems().sort((a,b)=>(a.data||'9999').localeCompare(b.data||'9999')||(a.nome||'').localeCompare(b.nome||''));
@@ -736,14 +767,16 @@ sSave.addEventListener('click',()=>{
   if(!sNome.value.trim()){ toast('Dê um nome ao ponto de saída'); return; }
   const d={nome:sNome.value.trim(),end:sEnd.value.trim(),data:sData.value,hora:sHora.value,
            terr:[...pickSel].sort((a,b)=>+a-+b),ts:Date.now()};
+  let idS=editS;
   if(editS) Object.assign(DB.s.items.find(x=>x.id===editS),d);
-  else DB.s.items.push(Object.assign({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)},d));
-  touchSaidas(); renderSaidas(); smodal.classList.remove('open'); editS=null; toast('Ponto de saída salvo');
+  else { idS='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    DB.s.items.push(Object.assign({id:idS},d)); }
+  touchSaidas(idS); renderSaidas(); smodal.classList.remove('open'); editS=null; toast('Ponto de saída salvo');
 });
 sDel.addEventListener('click',async ()=>{
   if(!await ask('Excluir este ponto de saída?','Excluir')) return;
   const it=DB.s.items.find(x=>x.id===editS); if(it){ it.del=true; it.ts=Date.now(); }
-  touchSaidas(); renderSaidas(); smodal.classList.remove('open'); editS=null;
+  touchSaidas(editS); renderSaidas(); smodal.classList.remove('open'); editS=null;
 });
 btnNewSaida.addEventListener('click',()=>openSaida(null));
 
@@ -751,7 +784,7 @@ btnNewSaida.addEventListener('click',()=>openSaida(null));
 const WD=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 let progF='next', editP=null;
 function pitems(){ return (DB.p.items||[]).filter(i=>!i.del); }
-function touchProg(){ DB.p.ts=Date.now(); dirty.add(KPROG); salvarFila(); persist(); schedule(); }
+function touchProg(id){ DB.p.ts=Date.now(); if(id) dirty.add('p_'+id); salvarFila(); persist(); schedule(); }
 function places(){ return [...new Set(pitems().map(i=>(i.place||'').trim()).filter(Boolean).concat(sitems().map(s=>s.nome)))].sort(); }
 function buildPlaces(){ document.getElementById('places').innerHTML=places().map(p=>`<option value="${esc(p)}">`).join(''); }
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -830,14 +863,16 @@ pSave.addEventListener('click',()=>{
   if(!pDate.value){ toast('Informe a data'); return; }
   const d={date:pDate.value,time:pTime.value,place:pPlace.value.trim(),dir:pDir.value.trim(),
            terr:pTerr.value,ponto:pPonto.value,ts:Date.now()};
+  let idP=editP;
   if(editP) Object.assign(DB.p.items.find(x=>x.id===editP),d);
-  else DB.p.items.push(Object.assign({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)},d));
-  touchProg(); renderProg(); pmodal.classList.remove('open'); editP=null; toast('Saída salva');
+  else { idP='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    DB.p.items.push(Object.assign({id:idP},d)); }
+  touchProg(idP); renderProg(); pmodal.classList.remove('open'); editP=null; toast('Saída salva');
 });
 pDel.addEventListener('click',async ()=>{
   if(!await ask('Excluir esta saída da programação?','Excluir')) return;
   const it=DB.p.items.find(x=>x.id===editP); if(it){ it.del=true; it.ts=Date.now(); }
-  touchProg(); renderProg(); pmodal.classList.remove('open'); editP=null;
+  touchProg(editP); renderProg(); pmodal.classList.remove('open'); editP=null;
 });
 progFilter.addEventListener('click',e=>{ const b=e.target.closest('.chip'); if(!b)return; progF=b.dataset.f;
   [...progFilter.children].forEach(c=>c.setAttribute('aria-pressed',String(c===b))); renderProg(); });
@@ -861,6 +896,20 @@ function syncStatus(t,ok){ const d=document.getElementById('syncDot'); if(d){ d.
 function desde(ms){ const s=Math.round((Date.now()-ms)/1000);
   if(s<60) return 'agora mesmo'; if(s<3600) return 'há '+Math.round(s/60)+' min';
   if(s<86400) return 'há '+Math.round(s/3600)+' h'; return 'há '+Math.round(s/86400)+' dias'; }
+/* nunca remove: item novo entra, item conhecido só é trocado se for mais recente */
+function guardarItem(lista,item){
+  if(!item||!item.id) return false;
+  const i=lista.findIndex(x=>x.id===item.id);
+  if(i<0){ lista.push(item); return true; }
+  if((item.ts||0)>(lista[i].ts||0)){ lista[i]=item; return true; }
+  return false;
+}
+function enfileirarTudo(){
+  KEYS.forEach(k=>{ if(DB.t[k] && (DB.t[k].ts||DB.t[k].start||DB.t[k].resp||DB.t[k].name)) dirty.add(k); });
+  (DB.p.items||[]).forEach(i=>dirty.add('p_'+i.id));
+  (DB.s.items||[]).forEach(i=>dirty.add('s_'+i.id));
+  salvarFila();
+}
 function mesclarLista(alvo, vindo){
   const m={}; (alvo||[]).forEach(x=>m[x.id]=x);
   let mudou=false;
@@ -872,12 +921,15 @@ async function sync(silent){
   if(syncing) return;
   syncing=true; syncStatus('sincronizando...',false);
   const info=document.getElementById('syncInfo');
-  if(!SY.since){ KEYS.forEach(k=>{ if(DB.t[k].ts) dirty.add(k); });
-    if((DB.p.items||[]).length) dirty.add(KPROG);
-    if((DB.s.items||[]).length) dirty.add(KSAIDA); salvarFila(); }
-  const items=[...dirty].filter(k=>/^\d+$/.test(k)).map(k=>({k,ts:DB.t[k].ts||Date.now(),d:DB.t[k]}));
-  if(dirty.has(KPROG)) items.push({k:KPROG,ts:DB.p.ts||Date.now(),d:{items:DB.p.items||[]}});
-  if(dirty.has(KSAIDA)) items.push({k:KSAIDA,ts:DB.s.ts||Date.now(),d:{items:DB.s.items||[]}});
+  if(!SY.since) enfileirarTudo();
+  const items=[];
+  dirty.forEach(k=>{
+    if(/^\d+$/.test(k)){ if(DB.t[k]) items.push({k,ts:DB.t[k].ts||Date.now(),d:DB.t[k]}); return; }
+    if(k.indexOf('p_')===0){ const it=(DB.p.items||[]).find(x=>'p_'+x.id===k);
+      if(it) items.push({k,ts:it.ts||Date.now(),d:it}); return; }
+    if(k.indexOf('s_')===0){ const it=(DB.s.items||[]).find(x=>'s_'+x.id===k);
+      if(it) items.push({k,ts:it.ts||Date.now(),d:it}); return; }
+  });
   try{
     if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(SY.url))
       throw new Error('O endereço precisa terminar em /exec.');
@@ -894,12 +946,18 @@ async function sync(silent){
     items.forEach(i=>dirty.delete(i.k)); salvarFila();
     let mud=0;
     (j.items||[]).forEach(it=>{
-      if(it.k===KPROG||it.k==='@prog'){ const r2=mesclarLista(DB.p.items,(it.d||{}).items);
-        if(r2.mudou){ DB.p.items=r2.itens; DB.p.ts=Date.now(); dirty.add(KPROG); salvarFila(); mud++; } return; }
-      if(it.k===KSAIDA||it.k==='@saidas'){ const r2=mesclarLista(DB.s.items,(it.d||{}).items);
-        if(r2.mudou){ DB.s.items=r2.itens; DB.s.ts=Date.now(); dirty.add(KSAIDA); salvarFila(); mud++; } return; }
-      if(!DB.t[it.k]) return;
-      if((it.ts||0)>(DB.t[it.k].ts||0)){ DB.t[it.k]=Object.assign(DB.t[it.k],it.d,{ts:it.ts}); mud++; }
+      const kk=it.k||'';
+      // pacotes antigos, de quando a lista inteira ia num item só
+      if(kk===KPROG||kk==='@prog'){ const r2=mesclarLista(DB.p.items,(it.d||{}).items);
+        if(r2.mudou){ DB.p.items=r2.itens; mud++; } return; }
+      if(kk===KSAIDA||kk==='@saidas'){ const r2=mesclarLista(DB.s.items,(it.d||{}).items);
+        if(r2.mudou){ DB.s.items=r2.itens; mud++; } return; }
+      if(kk.indexOf('p_')===0){ if(guardarItem(DB.p.items,it.d)) mud++; return; }
+      if(kk.indexOf('s_')===0){ if(guardarItem(DB.s.items,it.d)) mud++; return; }
+      if(/^\d+$/.test(kk) && DB.t[kk]){
+        const r2=mesclarTerr(DB.t[kk],it.d||{},it.ts||0);
+        if(r2.mudou){ DB.t[kk]=r2.t; mud++; }
+      }
     });
     SY.since=j.now||Date.now(); saveCfg(); persist(); lastOk=Date.now();
     if(mud){ renderBoard(); renderSummary(); renderProg(); renderSaidas(); buildPeople();
@@ -936,19 +994,18 @@ window.addEventListener('popstate',()=>{
   if(sheet.classList.contains('open')) closeSheet();
 });
 btnReset.addEventListener('click',async ()=>{
-  if(!await ask('Apagar tudo deste território?','Apagar tudo')) return;
-  DB.t[cur]=vazio(); touch(cur); openT(cur,false); renderBoard(); renderSummary(); toast('Território zerado');
+  if(!await ask('Apagar tudo deste território? Isso vale para todos os aparelhos.','Apagar tudo')) return;
+  zerarT(cur); openT(cur,false); renderBoard(); renderSummary(); toast('Território zerado');
 });
 [['fStart','start'],['fEnd','end'],['fName','name'],['fResp','resp'],['fAssign','assign'],
  ['fStop','stop'],['fNotes','notes'],['fAddr','addr']].forEach(([id,k])=>{
   document.getElementById(id).addEventListener('input',e=>{
-    DB.t[cur][k]=e.target.value;
-    if(k==='start') DB.t[cur].started=!!e.target.value;
-    if(k==='resp'){ if(e.target.value && !DB.t[cur].assign){ DB.t[cur].assign=today(); fAssign.value=DB.t[cur].assign; }
+    setT(cur,k,e.target.value);
+    if(k==='start') setT(cur,'started',!!e.target.value);
+    if(k==='resp'){ if(e.target.value && !DB.t[cur].assign){ setT(cur,'assign',today()); fAssign.value=DB.t[cur].assign; }
       sDist.textContent=e.target.value||'Sem responsável'; buildPeople(); }
     if(k==='name') sName.textContent=cur+' · '+nomeDe(cur);
     if(k==='addr') renderMaps();
-    touch(cur);
     if(k==='start'||k==='end') renderStart();
   });
 });
@@ -1041,6 +1098,10 @@ document.getElementById('btnSyncSave').addEventListener('click',()=>{
   toast('Sincronização ligada'); sync(false); });
 document.getElementById('btnSync').addEventListener('click',()=>{
   SY.url=syUrl.value.trim()||SY.url; SY.g=(syG.value.trim()||SY.g).toLowerCase(); saveCfg(); sync(false); });
+document.getElementById('btnSyncAll').addEventListener('click',async ()=>{
+  if(!await ask('Reenviar todos os registros deste aparelho para o servidor? Nada é apagado — o mais recente de cada campo prevalece.','Reenviar')) return;
+  enfileirarTudo(); SY.since=0; saveCfg(); sync(false);
+});
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) sync(true); });
 setInterval(()=>sync(true),45000);
 addEventListener('online',()=>sync(true));
@@ -1067,7 +1128,7 @@ function merge(d){
   if(d.s&&Array.isArray(d.s.items)) base.s={items:d.s.items,ts:d.s.ts||0};
   KEYS.forEach(k=>{ const s=d.t&&d.t[k]; if(!s)return;
     base.t[k]={name:s.name||'',resp:s.resp||'',assign:s.assign||'',start:s.start||'',end:s.end||'',
-      stop:s.stop||'',notes:s.notes||'',addr:s.addr||'',started:!!s.started||!!s.start||!!s.end,ts:s.ts||0}; });
+      stop:s.stop||'',notes:s.notes||'',addr:s.addr||'',started:!!s.started||!!s.start||!!s.end,f:s.f||{},ts:s.ts||0}; });
   return base;
 }
 let tT=null;
