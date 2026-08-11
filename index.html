@@ -566,7 +566,8 @@ function renderSummary(){
   const pct=KEYS.length? d/KEYS.length*100:0;
   hPct.textContent=Math.round(pct)+'%'; hDone.textContent=d+'/'+KEYS.length;
   hWip.textContent=w; hNew.textContent=n; hResp.textContent=r;
-  ringArc.setAttribute('stroke-dashoffset',String(245-245*pct/100));
+  const arco=document.getElementById('ringArc');
+  if(arco) arco.setAttribute('stroke-dashoffset',String(245-245*pct/100));
   coverBar.style.width=pct.toFixed(1)+'%'; coverPct.textContent=Math.round(pct)+'%';
 
   const ppl=people();
