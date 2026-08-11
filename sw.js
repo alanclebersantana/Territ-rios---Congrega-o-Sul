@@ -1,5 +1,5 @@
 /* Service worker — Territórios */
-const CACHE = 'territorios-v9';
+const CACHE = 'territorios-v10';
 const SHELL = ['./index.html','./manifest.json','./mapas/geral.png',
   './icon-96.png','./icon-192.png','./icon-384.png','./icon-512.png',
   './icon-192-maskable.png','./icon-512-maskable.png','./icon-32.png'];
