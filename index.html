@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F1F4F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1311" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Territórios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F4F2; --surface:#FFFFFF; --surface2:#F7F9F8; --line:#E3E8E5; --line2:#D3DAD6;
+  --text:#0F1613; --muted:#6E7D76; --faint:#9AA8A1;
+  --acc:#0E7C5A; --acc-t:#FFFFFF; --acc-soft:#DFF1E9;
+  --red:#D9534A; --red-soft:#FBE6E4;
+  --amber:#D08A16; --amber-soft:#FBF0DA;
+  --cover1:#FBFCFB; --cover2:#F3F7F4; --cover-ink:#0B4A34; --cover-ink2:#3E6B57; --cover-tex:11,74,52;
+  --sh:0 1px 2px rgba(15,22,19,.05), 0 10px 24px -18px rgba(15,22,19,.5);
+  --sh-l:0 2px 6px rgba(15,22,19,.06), 0 24px 48px -28px rgba(15,22,19,.55);
+  --r:20px; --r2:14px; --r3:10px;
+}
+html[data-theme="dark"]{
+  --bg:#0D1311; --surface:#151D1A; --surface2:#1B2521; --line:#243029; --line2:#2E3B34;
+  --text:#E7EFEA; --muted:#93A69C; --faint:#6C7F76;
+  --acc:#2FD69B; --acc-t:#06221A; --acc-soft:#123328;
+  --red:#F2685E; --red-soft:#3A1F1D;
+  --amber:#E5A93A; --amber-soft:#3A2E15;
+  --cover1:#131C18; --cover2:#0F1714; --cover-ink:#5FE3AC; --cover-ink2:#8FB3A4; --cover-tex:95,227,172;
+  --sh:0 1px 2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.9);
+  --sh-l:0 2px 8px rgba(0,0,0,.5), 0 28px 56px -30px rgba(0,0,0,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overscroll-behavior-y:none}
+body{background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-serif;font-size:15px;line-height:1.5;
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+button,input,textarea,select{font:inherit;color:inherit}
+button{border:none;background:none;cursor:pointer}
+.wrap{max-width:840px;margin:0 auto;padding:0 16px}
+.iconbtn{width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--line);
+  display:grid;place-items:center;box-shadow:var(--sh);flex:none}
+.iconbtn:active{transform:scale(.94)}
+.iconbtn svg{width:19px;height:19px;stroke:var(--cover-ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dbar .iconbtn svg{stroke:var(--text)}
+
+.cover{position:relative;overflow:hidden;background:linear-gradient(160deg,var(--cover1),var(--cover2));
+  border-bottom:1px solid var(--line);padding:calc(24px + env(safe-area-inset-top)) 0 26px}
+.cover::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:repeating-linear-gradient(45deg, rgba(var(--cover-tex),.07) 0 1px, transparent 1px 12px),
+                   repeating-linear-gradient(45deg, rgba(var(--cover-tex),.035) 0 1px, transparent 1px 4px)}
+.cover::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 80% at 80% -12%, rgba(var(--cover-tex),.05), transparent 62%)}
+.cover .wrap{position:relative;z-index:2}
+.cover.compact .rule,.cover.compact .prog{display:none}
+.cover.compact{padding-bottom:16px}
+.cover .topline{display:flex;align-items:flex-start;gap:12px}
+.cover .eyebrow{flex:1;font-size:11px;font-weight:800;letter-spacing:.26em;text-transform:uppercase;color:var(--cover-ink2);padding-top:12px}
+.cover h1{font-family:Caveat,"Comic Sans MS",cursive;font-weight:700;color:var(--cover-ink);
+  font-size:clamp(46px,14.5vw,66px);line-height:.9;margin:2px 0 0}
+.cover .rule{height:1px;background:linear-gradient(90deg,rgba(var(--cover-tex),.28),rgba(var(--cover-tex),0));margin:16px 0 12px}
+.cover .prog{display:flex;align-items:center;gap:11px}
+.cover .prog .track{flex:1;height:6px;border-radius:99px;background:rgba(var(--cover-tex),.16);overflow:hidden}
+.cover .prog .track i{display:block;height:100%;border-radius:99px;background:var(--cover-ink);transition:width .6s cubic-bezier(.2,.8,.3,1)}
+.cover .prog b{font-size:13px;font-weight:800;color:var(--cover-ink)}
+
+.hero{background:var(--surface);border-radius:var(--r);padding:18px;margin-top:6px;box-shadow:var(--sh);display:flex;align-items:center;gap:18px}
+.ring{position:relative;width:92px;height:92px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .lab{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ring .lab b{font-size:23px;font-weight:800;line-height:1}
+.ring .lab span{font-size:9.5px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.hero .st{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px 10px}
+.hero .st div b{display:block;font-size:19px;font-weight:800;line-height:1.1}
+.hero .st div span{font-size:11px;color:var(--muted)}
+
+.searchrow{display:flex;gap:8px;margin:14px 0 10px}
+.search{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:11px 16px;box-shadow:var(--sh);min-width:0}
+.search:focus{outline:none;border-color:var(--acc)}
+.chips{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;background:var(--surface);color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--bg)}
+
+/* lista de territórios */
+.tlist{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
+@media(min-width:620px){.tlist{grid-template-columns:1fr 1fr}}
+.trow{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r2);padding:12px 14px;text-align:left;width:100%;box-shadow:var(--sh);transition:transform .12s ease}
+.trow:active{transform:scale(.985)}
+.trow .num{width:44px;height:44px;border-radius:13px;flex:none;display:grid;place-items:center;
+  font-size:17px;font-weight:800;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.trow[data-st="wip"] .num{background:var(--amber-soft);color:var(--amber);border-color:transparent}
+.trow[data-st="done"] .num{background:var(--acc);color:var(--acc-t);border-color:transparent}
+.trow .bd{flex:1;min-width:0}
+.trow .bd .nm{font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .bd .sub{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .tag{font-size:10.5px;font-weight:800;padding:5px 9px;border-radius:99px;flex:none;
+  background:var(--surface2);color:var(--muted)}
+.trow[data-st="wip"] .tag{background:var(--amber-soft);color:var(--amber)}
+.trow[data-st="done"] .tag{background:var(--acc-soft);color:var(--acc)}
+.empty{text-align:center;color:var(--muted);padding:50px 20px}
+
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:70;background:color-mix(in srgb,var(--surface) 92%,transparent);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;
+  padding:8px 2px calc(8px + env(safe-area-inset-bottom))}
+.tabbar button{flex:1;display:grid;place-items:center;gap:3px;padding:5px 0;color:var(--muted);border-radius:var(--r3)}
+.tabbar button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button span{font-size:10px;font-weight:600}
+.tabbar button[aria-selected="true"]{color:var(--acc)}
+.page{display:none}
+.page.on{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.sheet{position:fixed;inset:0;z-index:80;background:var(--bg);overflow-y:auto;display:none}
+.sheet.open{display:block;animation:slide .24s cubic-bezier(.22,.8,.3,1)}
+@keyframes slide{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.dbar{position:sticky;top:0;z-index:8;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  padding:calc(9px + env(safe-area-inset-top)) 16px 9px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.dbar .t{flex:1;min-width:0}
+.dbar .t .k{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbar .t .n{font-size:17px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.dbar .pill{font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:999px;background:var(--surface2);color:var(--muted);flex:none}
+
+.startbar{margin-top:14px}
+.bigbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;border-radius:var(--r);
+  padding:15px;font-size:15px;font-weight:700;box-shadow:var(--sh);background:var(--acc);color:var(--acc-t)}
+.bigbtn:active{transform:scale(.985)}
+.bigbtn.ghost{background:var(--surface);color:var(--acc);border:1.5px solid var(--acc)}
+.bigbtn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.infobox{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r);padding:13px 15px;box-shadow:var(--sh);margin-bottom:9px}
+.infobox .bul{width:10px;height:10px;border-radius:50%;flex:none}
+.infobox .tx{flex:1;min-width:0;font-size:13.5px;font-weight:700}
+.infobox .tx small{display:block;font-size:11.5px;font-weight:500;color:var(--muted)}
+.infobox button{font-size:12px;font-weight:700;color:var(--muted);padding:6px 10px;border-radius:99px;border:1px solid var(--line)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px;margin:14px 0;box-shadow:var(--sh)}
+.panel h3{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+label.f{display:block}
+label.f>span{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px}
+input[type=date],input[type=time],input[type=text],textarea,select{
+  width:100%;background:var(--surface2);border:1px solid var(--line);border-radius:var(--r3);padding:11px 12px;font-size:15px}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--acc)}
+textarea{resize:vertical;min-height:62px}
+.full{grid-column:1/-1}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.btn{border:1px solid var(--line);background:var(--surface2);border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:600}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:var(--acc-t)}
+.btn.danger{color:var(--red);border-color:var(--red-soft);background:var(--red-soft)}
+.gomaps{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:var(--acc);color:var(--acc-t);
+  border-radius:var(--r2);padding:13px 15px;box-shadow:var(--sh)}
+.gomaps:active{transform:scale(.985)}
+.gomaps svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.gomaps b{display:block;font-size:14.5px;font-weight:700}
+.gomaps small{display:block;font-size:11.5px;font-weight:500;opacity:.85;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rota{display:flex;align-items:center;gap:9px;margin-top:11px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.rota input{width:18px;height:18px;accent-color:var(--acc)}
+#ruas .chip{font-size:11.5px;padding:6px 11px}
+.swipehint{text-align:center;font-size:11.5px;color:var(--faint);padding:2px 0 18px}
+
+.mapcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin:14px 0}
+.mapscroll{overflow:auto;-webkit-overflow-scrolling:touch;background:#fff}
+.mapscroll img{display:block;max-width:none}
+html[data-theme="dark"] .mapscroll img{filter:invert(1) hue-rotate(180deg) contrast(.92)}
+.maptools{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.maptools .lg{flex:1;font-size:11.5px;color:var(--muted)}
+.zbtn{width:34px;height:34px;border-radius:var(--r3);border:1px solid var(--line);background:var(--surface2);
+  display:grid;place-items:center;font-size:17px;font-weight:600;flex:none}
+
+/* programação / saídas */
+.progtop{display:flex;gap:8px;align-items:stretch;margin:16px 0 10px}
+.progtop .add{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--acc);
+  color:var(--acc-t);border-radius:var(--r2);padding:12px 14px;font-size:14px;font-weight:700;box-shadow:var(--sh);white-space:nowrap}
+.progtop .add svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;flex:none}
+.progtop .copy{flex:0 0 auto;width:46px;border-radius:var(--r2);background:var(--surface);border:1px solid var(--line);
+  display:grid;place-items:center;box-shadow:var(--sh)}
+.progtop .copy svg{width:19px;height:19px;stroke:var(--text);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh);margin-bottom:9px}
+.day .dh{position:relative;display:flex;align-items:baseline;gap:9px;padding:7px 12px 8px;
+  background:linear-gradient(160deg,var(--cover1),var(--cover2));border-bottom:1px solid var(--line);overflow:hidden}
+.day .dh::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(45deg, rgba(var(--cover-tex),.07) 0 1px, transparent 1px 12px)}
+.day .dh .num{position:relative;font-family:Caveat,cursive;font-weight:700;font-size:27px;line-height:.8;color:var(--cover-ink);flex:none}
+.day .dh .wd{position:relative;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--cover-ink)}
+.day .dh .mo{position:relative;flex:1;font-size:11px;font-weight:600;color:var(--cover-ink2)}
+.day .dh .cnt{position:relative;font-size:10.5px;font-weight:700;color:var(--cover-ink2)}
+.slot{display:grid;grid-template-columns:46px 1fr auto;gap:1px 9px;width:100%;text-align:left;
+  padding:7px 12px 8px;border-top:1px solid var(--line);align-items:center}
+.slot:first-of-type{border-top:none}
+.slot .time{grid-column:1;grid-row:1/3;font-size:14px;font-weight:800;color:var(--acc)}
+.slot .pl{grid-column:2;grid-row:1;font-size:13px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .dr{grid-column:2;grid-row:2;font-size:11.5px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .tg{grid-column:3;grid-row:1/3;font-size:10.5px;font-weight:800;padding:4px 7px;border-radius:7px;background:var(--acc-soft);color:var(--acc);white-space:nowrap}
+@media print{.tabbar,.progtop,.cover .prog,.cover .rule,.cover .topline .iconbtn{display:none!important}
+  body{padding-bottom:0}.day,.saida{break-inside:avoid;box-shadow:none}}
+
+.saida{background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden}
+.saida .sh{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.saida .sh .pin{width:38px;height:38px;border-radius:12px;flex:none;display:grid;place-items:center;background:var(--acc-soft)}
+.saida .sh .pin svg{width:19px;height:19px;stroke:var(--acc);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.saida .sh .tx{flex:1;min-width:0}
+.saida .sh .tx b{display:block;font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.saida .sh .tx small{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.saida .sg{padding:11px 14px 13px}
+.saida .sg .lbl{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+.tchips{display:flex;flex-wrap:wrap;gap:6px}
+.tchip{font-size:12px;font-weight:700;padding:6px 11px;border-radius:99px;border:1px solid var(--line);background:var(--surface2);color:var(--text)}
+.tchip[data-st="wip"]{background:var(--amber-soft);border-color:transparent;color:var(--amber)}
+.tchip[data-st="done"]{background:var(--acc-soft);border-color:transparent;color:var(--acc);text-decoration:line-through}
+.saida .sf{display:flex;gap:8px;padding:0 14px 13px}
+.pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px;max-height:250px;overflow-y:auto;
+  padding:4px;border:1px solid var(--line);border-radius:var(--r3);background:var(--surface2)}
+.pick{padding:9px 2px;border-radius:8px;font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--line);text-align:center}
+.pick[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--acc-t)}
+.pick .s{display:block;font-size:9px;font-weight:600;opacity:.7}
+
+.modal{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(6,12,10,.5)}
+.modal.open{display:flex}
+.modal .box{background:var(--surface);width:100%;max-width:520px;border-radius:24px 24px 0 0;
+  padding:8px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:var(--sh-l);animation:slide .2s ease;max-height:92vh;overflow-y:auto}
+.modal .grip{width:38px;height:4px;border-radius:99px;background:var(--line2);margin:0 auto 14px}
+@media(min-width:560px){.modal{align-items:center}.modal .box{border-radius:24px;padding-top:18px}.modal .grip{display:none}}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;padding:11px 4px;font-size:13px;font-weight:600;background:var(--surface2);border:1px solid var(--line);border-radius:var(--r3)}
+.seg button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--acc-t)}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(8px);
+  background:var(--text);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;z-index:130;opacity:0;pointer-events:none;transition:.22s}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.note{font-size:11.5px;color:var(--faint);text-align:center;margin:14px 0 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="topline">
+      <div class="eyebrow">Congregação Sul</div>
+      <span style="display:flex;gap:8px;flex:none">
+        <button class="iconbtn" id="btnTheme" aria-label="Tema"><svg id="icoTheme" viewBox="0 0 24 24"></svg></button>
+        <button class="iconbtn" id="btnCfg" aria-label="Configurações"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6h.06A1.7 1.7 0 0 0 10.1 3.04V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.06a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.03Z"/></svg></button>
+      </span>
+    </div>
+    <h1 id="coverTitle">Territórios</h1>
+    <div class="rule"></div>
+    <div class="prog"><div class="track"><i id="coverBar"></i></div><b id="coverPct">0%</b></div>
+  </div>
+</header>
+
+<!-- TERRITÓRIOS -->
+<section class="page on" id="pgList">
+  <div class="wrap">
+    <div class="searchrow"><input class="search" id="q" type="search" placeholder="Buscar número, nome ou responsável" autocomplete="off"></div>
+    <div class="chips" id="filters">
+      <button class="chip" data-f="all" aria-pressed="true">Todos</button>
+      <button class="chip" data-f="wip" aria-pressed="false">Em andamento</button>
+      <button class="chip" data-f="new" aria-pressed="false">A iniciar</button>
+      <button class="chip" data-f="done" aria-pressed="false">Concluídos</button>
+      <button class="chip" data-f="free" aria-pressed="false">Sem responsável</button>
+    </div>
+    <div class="tlist" id="board"></div>
+  </div>
+</section>
+
+<!-- MAPA -->
+<section class="page" id="pgMap">
+  <div class="wrap">
+    <div class="mapcard">
+      <div class="mapscroll" id="geral"></div>
+      <div class="maptools"><div class="lg">Mapa geral — arraste para os lados</div>
+        <button class="zbtn" id="gOut">−</button><button class="zbtn" id="gIn">+</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- CAMPO -->
+<section class="page" id="pgProg">
+  <div class="wrap">
+    <div class="progtop">
+      <button class="add" id="btnNewProg"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nova saída de campo</button>
+      <button class="copy" id="btnCopyProg" aria-label="Copiar"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9"/></svg></button>
+    </div>
+    <div class="chips" id="progFilter">
+      <button class="chip" data-f="next" aria-pressed="true">A partir de hoje</button>
+      <button class="chip" data-f="week" aria-pressed="false">Esta semana</button>
+      <button class="chip" data-f="all" aria-pressed="false">Tudo</button>
+    </div>
+    <div id="progList" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<!-- SAÍDAS -->
+<section class="page" id="pgSaidas">
+  <div class="wrap">
+    <div class="progtop">
+      <button class="add" id="btnNewSaida"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Novo ponto de saída</button>
+    </div>
+    <p class="note" style="text-align:left;margin:0 0 12px">Cada ponto de saída guarda o local e os territórios que ficam por perto, para sugerir na hora de programar.</p>
+    <div id="saidaList"></div>
+  </div>
+</section>
+
+<!-- RESUMO -->
+<section class="page" id="pgSum">
+  <div class="wrap">
+    <div class="hero">
+      <div class="ring">
+        <svg width="92" height="92" viewBox="0 0 92 92">
+          <circle cx="46" cy="46" r="39" fill="none" stroke="var(--line)" stroke-width="9"/>
+          <circle id="ringArc" cx="46" cy="46" r="39" fill="none" stroke="var(--acc)" stroke-width="9" stroke-linecap="round"
+                  stroke-dasharray="245" stroke-dashoffset="245" style="transition:stroke-dashoffset .7s cubic-bezier(.2,.8,.3,1)"/>
+        </svg>
+        <div class="lab"><b id="hPct">0%</b><span>concluído</span></div>
+      </div>
+      <div class="st">
+        <div><b id="hDone">0</b><span>concluídos</span></div>
+        <div><b id="hWip">0</b><span>em andamento</span></div>
+        <div><b id="hNew">0</b><span>a iniciar</span></div>
+        <div><b id="hResp">0</b><span>designados</span></div>
+      </div>
+    </div>
+    <div class="panel"><h3>Responsáveis</h3><div id="byResp"></div></div>
+    <div class="panel"><h3>Últimos concluídos</h3><div id="recent"></div></div>
+  </div>
+</section>
+
+<nav class="tabbar" id="tabs">
+  <button data-p="pgList" aria-selected="true">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="2.2" cy="6" r=".8"/><circle cx="2.2" cy="12" r=".8"/><circle cx="2.2" cy="18" r=".8"/></svg><span>Territórios</span></button>
+  <button data-p="pgMap" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M9 4 3 6.5v13L9 17l6 3 6-2.5v-13L15 7 9 4Z"/><path d="M9 4v13M15 7v13"/></svg><span>Mapa</span></button>
+  <button data-p="pgProg" aria-selected="false">
+    <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg><span>Campo</span></button>
+  <button data-p="pgSaidas" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg><span>Saídas</span></button>
+  <button data-p="pgSum" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg><span>Resumo</span></button>
+</nav>
+
+<!-- DETALHE -->
+<section class="sheet" id="sheet" aria-hidden="true">
+  <div class="dbar">
+    <button class="iconbtn" id="btnBack" aria-label="Voltar"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="t"><div class="k" id="sDist"></div><div class="n" id="sName"></div></div>
+    <div class="pill" id="sPill">A iniciar</div>
+  </div>
+  <div class="wrap" id="detail">
+    <div class="startbar" id="startbar"></div>
+
+    <div class="panel">
+      <h3>Onde fica <span style="float:right;font-weight:600;letter-spacing:0;text-transform:none;font-size:11px;color:var(--muted)">Google Maps</span></h3>
+      <label class="f" style="margin-bottom:11px"><span>Endereço de referência</span>
+        <input type="text" id="fAddr" placeholder="Rua, praça ou ponto de referência"></label>
+      <button class="gomaps" id="btnMaps">
+        <svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+        <span><b>Abrir no Google Maps</b><small id="mapsMain">—</small></span>
+      </button>
+      <label class="rota"><input type="checkbox" id="chkRota"><span>Traçar rota a partir da minha localização</span></label>
+      <div class="chips" id="ruas" style="margin-top:10px"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Registro</h3>
+      <div class="fields">
+        <label class="f"><span>Início</span><input type="date" id="fStart"></label>
+        <label class="f"><span>Conclusão</span><input type="date" id="fEnd"></label>
+        <label class="f full"><span>Nome do território</span><input type="text" id="fName" placeholder="Ex.: Jardim Custódio"></label>
+        <label class="f"><span>Responsável</span><input type="text" id="fResp" list="people" placeholder="Nome"></label>
+        <label class="f"><span>Designado em</span><input type="date" id="fAssign"></label>
+        <label class="f full"><span>Onde paramos</span><input type="text" id="fStop" placeholder="Ex.: faltou o lado par da Rua Kei Hamada"></label>
+        <label class="f full"><span>Observações</span><textarea id="fNotes" placeholder="Cães bravos, portarias, moradores a revisitar..."></textarea></label>
+      </div>
+      <div class="acts"><button class="btn danger" id="btnReset">Zerar território</button></div>
+    </div>
+
+    <p class="swipehint">Deslize para os lados para trocar de território</p>
+  </div>
+</section>
+
+<!-- CONFIGURAÇÕES -->
+<section class="sheet" id="cfgsheet" aria-hidden="true">
+  <div class="dbar">
+    <button class="iconbtn" id="cfgBack" aria-label="Voltar"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="t"><div class="k">Ajustes</div><div class="n">Configurações</div></div>
+  </div>
+  <div class="wrap">
+    <div class="panel">
+      <h3>Sincronizar entre aparelhos <span id="syncDot" style="float:right;font-weight:600;letter-spacing:0;text-transform:none;font-size:11px;color:var(--muted)">desligada</span></h3>
+      <p class="note" style="text-align:left;margin:0 0 12px">Ligue nos dois aparelhos com o mesmo endereço e o mesmo código.</p>
+      <div class="fields">
+        <label class="f full"><span>Endereço do servidor</span><input type="text" id="syUrl" placeholder="https://script.google.com/macros/s/.../exec"></label>
+        <label class="f full"><span>Código do grupo</span><input type="text" id="syG" placeholder="Ex.: sul-marialva"></label>
+      </div>
+      <div class="acts"><button class="btn primary" id="btnSyncSave">Ligar sincronização</button><button class="btn" id="btnSync">Sincronizar agora</button></div>
+      <p class="note" style="text-align:left;margin-top:11px" id="syncInfo">Sem conexão configurada — o registro fica só neste aparelho.</p>
+    </div>
+    <div class="panel"><h3>Aparência</h3>
+      <div class="seg" id="cfgTheme"><button data-t="light">Claro</button><button data-t="dark">Escuro</button><button data-t="auto">Do sistema</button></div>
+    </div>
+    <div class="panel"><h3>Backup</h3>
+      <div class="acts" style="margin-top:0">
+        <button class="btn" id="btnExport">Salvar arquivo</button>
+        <button class="btn" id="btnImport">Restaurar arquivo</button>
+        <input type="file" id="fileIn" accept="application/json" hidden>
+      </div>
+      <p class="note" style="text-align:left;margin-top:11px">Os registros ficam neste aparelho. Salve um arquivo antes de trocar de celular.</p>
+    </div>
+    <div class="panel"><h3>Sobre</h3><p class="note" style="text-align:left;margin:0">54 territórios · Congregação Sul de Marialva.</p></div>
+  </div>
+</section>
+
+<!-- MODAL: saída de campo -->
+<div class="modal" id="pmodal" aria-hidden="true">
+  <div class="box"><div class="grip"></div>
+    <h3 style="font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 13px" id="pTitle">Nova saída</h3>
+    <div class="fields">
+      <label class="f"><span>Data</span><input type="date" id="pDate"></label>
+      <label class="f"><span>Horário</span><input type="time" id="pTime" step="300"></label>
+      <label class="f full"><span>Ponto de saída</span><select id="pPonto"></select></label>
+      <label class="f full"><span>Local da reunião</span><input type="text" id="pPlace" list="places" placeholder="Ex.: Salão do Reino"></label>
+      <label class="f full"><span>Dirigente</span><input type="text" id="pDir" list="people" placeholder="Nome"></label>
+      <label class="f full"><span>Território</span><select id="pTerr"></select></label>
+    </div>
+    <div class="acts" style="justify-content:space-between">
+      <button class="btn danger" id="pDel">Excluir</button>
+      <span style="display:flex;gap:8px"><button class="btn" id="pCancel">Cancelar</button><button class="btn primary" id="pSave">Salvar</button></span>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ponto de saída -->
+<div class="modal" id="smodal" aria-hidden="true">
+  <div class="box"><div class="grip"></div>
+    <h3 style="font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 13px" id="sTitle">Ponto de saída</h3>
+    <div class="fields">
+      <label class="f full"><span>Nome do ponto</span><input type="text" id="sNome" placeholder="Ex.: Salão do Reino"></label>
+      <label class="f full"><span>Endereço</span><input type="text" id="sEnd" placeholder="Rua, número — para abrir no Maps"></label>
+      <label class="f"><span>Data (opcional)</span><input type="date" id="sData"></label>
+      <label class="f"><span>Horário (opcional)</span><input type="time" id="sHora" step="300"></label>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--muted);margin:14px 0 6px">
+      Territórios sugeridos <span id="sCont" style="float:right;color:var(--acc)"></span></div>
+    <div class="pickgrid" id="sPick"></div>
+    <div class="acts" style="justify-content:space-between">
+      <button class="btn danger" id="sDel">Excluir</button>
+      <span style="display:flex;gap:8px"><button class="btn" id="sCancel">Cancelar</button><button class="btn primary" id="sSave">Salvar</button></span>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="askmodal" aria-hidden="true">
+  <div class="box"><div class="grip"></div>
+    <p id="askMsg" style="font-size:15px;font-weight:600;margin:2px 0 18px;line-height:1.45"></p>
+    <div class="acts" style="justify-content:flex-end;margin:0">
+      <button class="btn" id="askNo">Cancelar</button><button class="btn primary" id="askYes">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<datalist id="people"></datalist>
+<datalist id="places"></datalist>
+<div class="toast" id="toast"></div>
+
+<script>
+const MAP = {"terr":{"01":{"ruas":["R. V. GERALDI","R. JESUS VITAL","RUA AGRIPINO ADENA","R. C. ALBINO","RUA VALENTIN GERALDI","RUA MARIA MOLINA","RUA SALEM SAID NACON"]},"02":{"ruas":["RUA AGRIPINO ADENA","R. V. GERALDI","RUA VALENTIN GERALDI","RUA CARLINDO ALBINO","R. C. ALBINO","RUA MANOEL MARQUES GOMES","R. JESUS VITAL","RUA 11","RUA MARIA MOLINA","RUA SALEM SAID NACON"]},"03":{"ruas":["RUA CARLINDO ALBINO","RUA MARIA MOLINA","RUA PROJETADA 01","RUA MANOEL MARQUES GOMES","RUA SALEM SAID NACON","RUA 11"]},"04":{"ruas":["RUA MARIA MOLINA","RUA SALEM SAID NACON","RUA CARLINDO ALBINO","RUA PROJETADA 01","RUA PROJETADA 02"]},"05":{"ruas":["RUA SALEM SAID NACON","RUA MARIA MOLINA","RUA AGRIPINO ADENA","R. C. ALBINO","RUA PAULO YAMAMOTO"]},"06":{"ruas":["RUA SALEM SAID NACON","RUA MARIA MOLINA","RUA PAULO YAMAMOTO","RUA CARLINDO ALBINO","RUA ISMAEL PERES","RUA MANOEL MARQUES GOMES","RUA AGRIPINO ADENA"]},"07":{"ruas":["RUA PAULO YAMAMOTO","RUA ISMAEL PERES","RUA SALEM SAID NACON","RUA AGRIPINO ADENA","RUA MARIA MOLINA","RUA CARLINDO ALBINO"]},"08":{"ruas":["R. OLIMPIO","R. LAURA MARIA","R. DOLORES MARIA"]},"09":{"ruas":["RUA FRANCISCO F DA SILVA","R. MANOEL NUNES","R. C II","R. LUIS ROMAN","R. DOLORES MARIA","RUA PEDRO CAZELATO"]},"10":{"ruas":["RUA PEDRO CAZELATO","R. LUIS ROMAN","R. ANTONIO TOFANELU","R. MANOEL N. MARQUES","R. MANOEL NUNES","RUA FRANCISCO F DA SILVA","R. C II","RUA TOSHIO ITO","R. DOLORES MARIA","RUA ALEXANDRE RUFO"]},"11":{"ruas":["RUA PEDRO CAZELATO","R. ANTONIO TOFANELU","RUA TOSHIO ITO"]},"12":{"ruas":["RUA PEDRO CAZELATO","RUA ALEXANDRE RUFO","RUA SHIGUEYSA OKMURA","RUA TOSHIO ITO","RUA V"]},"13":{"ruas":["RUA III","RUA GERALDA A","RUA V","RUA SHIGUEYSA OKMURA"]},"14":{"ruas":["R. G. VIDIGAL","RUA PRESIDENTE NEREU RAMOS","R. CAMPOS SALES","RUA ANGELO REGIOLI","RUA JUAN MORANTE SOLER","RUA JUVENAL DOS SANTOS","PRAÇA","R. ANSELMO M.","RUA III"]},"15":{"ruas":["RUA JUAN MORANTE SOLER","RUA ANGELO REGIOLI","R. R. DE SOUZA","RUA BRAZ P. ORTEGA","RUA GERALDA A","R. ANSELMO M.","RUA III","RUA BRAZ IZZO","R. MICHEL A.","R. CAMPOS SALES"]},"16":{"ruas":["R. GENTIL R.","RUA F.","R. M MELONI","R. JOAQUIM A.","R. DO MATAD.","RUA JUAN MORANTE SOLER","R. ANSELMO","RUA LUIZ CATTO JUNIOR","RUA BRAZ IZZO","R. MICHEL A."]},"17":{"ruas":["RUA BRAZ P. ORTEGA","R. MICHEL A.","R. R. DE SOUZA","RUA JUAN MORANTE SOLER","RUA BRAZ IZZO","RUA SHIGUEYSA OKMURA","RUA GERALDA A","RUA ALEXANDRE RUFO","RUA TOSHIO ITO","RUA III"]},"18":{"ruas":["R. M MELONI","RUA F.","R. ANSELMO","RUA BRAZ IZZO","TRAVESSA","R. GENTIL R.","R. JOAQUIM A.","RUA C.","R. LEONILDO BONI","RUA JUAN MORANTE SOLER"]},"19":{"ruas":["RUA LUIZ PIERINI","R. BIAZIO B.","RUA BALBINA DE JESUS RAMOS","R. EDUARDO E.","RUA TITOSHI MIAMOTO","RUA GIUSEPE GANDOLFI","RUA MANOEL CHAMORRO","RUA LAZARO DIAS DOS SANTOS","RUA RIKISABURO ITO","RUA C."]},"20":{"ruas":["RUA JUVENAL DOS SANTOS","RUA RIKISABURO ITO","R. ANSELMO M.","RUA ANGELO REGIOLI","RUA SHIGEYOSHI SAWAKI","TV. ALVORADA","RUA MANOEL CHAMORRO","RUA JUAN MORANTE SOLER"]},"21":{"ruas":["RUA MANOEL CHAMORRO","RUA TITOSHI MIAMOTO","RUA SHIGEYOSHI SAWAKI","RUA RIKISABURO ITO","RUA BALBINA DE JESUS RAMOS","R. BIAZIO B."]},"22":{"ruas":["RUA C.","RUA GIUSEPE GANDOLFI","RUA BALBINA DE JESUS RAMOS","R. EDUARDO E.","R. LEONILDO BONI","RUA LAZARO DIAS DOS SANTOS","R. BIAZIO B.","RUA LUIZ PIERINI","RUA LUIZ CATTO JUNIOR"]},"23":{"ruas":["RUA GIUSEPE GANDOLFI","RUA BALBINA DE JESUS RAMOS","RUA TITOSHI MIAMOTO","RUA LAZARO DIAS DOS SANTOS","RUA LUIZ PIERINI","RUA FLORINDO ZANON"]},"24":{"ruas":["RUA FLORINDO ZANON","RUA SHIGEYOSHI SAWAKI","R. F. ZANON","RUA IRENE S FABENE"]},"25":{"ruas":["R. F. ZANON","R. R. MANDADORI","RUA DAS ROSAS","RUA FLORINDO ZANON","RUA DAS MARGARIDAS"]},"26":{"ruas":["RUA LUIZ PIERINI","RUA LAZARO DIAS DOS SANTOS","RUA JAIR COLOMBO","RUA GIUSEPE GANDOLFI","RUA ISALTINO NASCIMENTO","RUA BRAZ IZZO"]},"27":{"ruas":["RUA ISALTINO NASCIMENTO","RUA JAIR COLOMBO","RUA FLORINDO ZANON","R. F. ZANON","RUA RICIERI MANDADORI","RUA KEI HAMADA","R. R. MANDADORI","RUA LAZARO DIAS DOS SANTOS","AVENIDA MARIA GALLO","RUA GIUSEPE GANDOLFI"]},"28":{"ruas":["RUA JAIR COLOMBO","RUA ISALTINO NASCIMENTO","RUA KEI HAMADA","AVENIDA MARIA GALLO"]},"29":{"ruas":["RUA TEIKO HAMADA","RUA LUIZ PIERINI","RUA KEI HAMADA","AVENIDA MARIA GALLO","RUA BRAZ IZZO"]},"30":{"ruas":["R. ONOFRE. O.","R. MARIA DE F.","R. MAURO PEDRO","R. APARECIDA C.","R. MARIA H.F.","RUA TEIKO HAMADA","R. EVARISTO B.","RUA BRAZ IZZO"]},"31":{"ruas":["RUA MARIA STORTO FANCELLI","RUA JOAQUIM SILVESTRE","R. ONOFRE. O.","R. MARIA DE F.","R. MAURO PEDRO","R. APARECIDA C.","RUA KEI HAMADA","R. MARIA H.F.","AVENIDA MARIA GALLO","RUA TEIKO HAMADA"]},"32":{"ruas":["RUA TEIKO HAMADA","RUA KEI HAMADA","AVENIDA MARIA GALLO"]},"33":{"ruas":["R. BELMIRO VINHAES","RUA TARAO HIRIGUTI","RUA RICIERI MANDADORI","RUA AFONSO CONTE","RUA ATHAYDE DUTRA SANTANA","AVENIDA MARIA GALLO"]},"34":{"ruas":["RUA RICIERI MANDADORI","R. BELMIRO VINHAES","RUA ATHAYDE DUTRA SANTANA","RUA TARAO HIRIGUTI","RUA AFONSO CONTE","AVENIDA MARIA GALLO","RUA APARECIDA DE CARVALHO"]},"35":{"ruas":["RUA LUIZ PIERINI","RUA MARINA SATIE LEIRI IRIGUTI","RUA ATHAYDE DUTRA SANTANA","RUA TARAO HIRIGUTI","AVENIDA MARIA GALLO","RUA BRAZ IZZO","RUA APARECIDA DE CARVALHO"]},"36":{"ruas":["R. MARIA F.","RUA MARIA STORTO FANCELLI","RUA M. STORTO FANCELLI","R. THYRSO B.","RUA MARINA SATIE LEIRI IRIGUTI","RUA JOAQUIM SILVESTRE","RUA TARAO HIRIGUTI","R. PROJETADA","AVENIDA MARIA GALLO","R. ISAULINA S."]},"37":{"ruas":["RUA M. STORTO FANCELLI","R. MARIA F.","BR 376","AVENIDA MANGETTI RIGUETTI","R. THYRSO B.","RUA MARINA SATIE LEIRI IRIGUTI","R. PROJETADA","R. ISAULINA S.","RUA BRAZ IZZO"]},"38":{"ruas":["RUA JOAQUIM DE JULIO","RUA TARAO HIRIGUTI","AVENIDA MARIA GALLO","RUA MARINA SATIE LEIRI IRIGUTI"]},"39":{"ruas":["R. SANTO DIAS","R. D. ELDER","RUA ROSA DE LUXEMBURGO","R. C. LAMARCA"]},"40":{"ruas":["RUA DAS MARGARIDAS","RUA DAS ROSAS","RUA DOS CRAVOS","R. R. MANDADORI","RUA IRENE S FABENE"]},"41":{"ruas":["RUA DAS MARGARIDAS","RUA DAS ROSAS","RUA DOS CRAVOS"]},"42":{"ruas":["RUA CARLOS BETINELI","RUA PRESIDENTE NEREU RAMOS","RUA PRIMO BORSARI","RUA FORMOSA","R. CARIOVALDO A. F.","RUA IRENE S FABENE","RUA MARIO SILVESTRE","RUA T. SILVESTRE","PRAÇA","RUA SHIGEYOSHI SAWAKI"]},"43":{"ruas":["RUA IRENE S FABENE","RUA T. SILVESTRE","RUA MARIO SILVESTRE","RUA CARLOS BETINELI","RUA PRIMO BORSARI"]},"44":{"ruas":["AV. RUI BARBOSA","R. D. DE MORAES","RUA PRESIDENTE NEREU RAMOS","RUA PRIMO BORSARI","AV. F. PEIXOTO","R. CARIOVALDO A. F.","RUA CARLOS BETINELI"]},"45":{"ruas":["RUA PRESIDENTE NEREU RAMOS","R. ROTARY","RUA MANOEL VITORIANO","R. ZENILDO T.","R. MANOEL VITORIANO","AV. F. PEIXOTO"]},"46":{"ruas":["R. T M FELBER","R. MANOEL VITORIANO"]},"47":{"ruas":["TV. FRANCISCO URQUIZA","RUA PAULO JACOMETO","TV. FERNANDA BRESSA"]},"48":{"ruas":["R. CINCO","R. SEIS","R. QUATRO","R. SETE","AVENIDA CARAGUATA","R. OITO","R. DOIS","R. NOVE","RUA UM","BR 376"]},"49":{"ruas":["ESTR. JAGUARUNA","RUA TITO MARTINS","RUA LUIS PATRONE","R. LUIS MANTOVI","ESTRADA PARIZ"]},"50":{"ruas":["AV. MARIALVA","R. NEO MARTINS","ROD. LUIS MACENTE"]},"51":{"ruas":["AV. MARIALVA","R. EDSON CASTRO","R. PAMPLONA","AVENIDA MARIALVA","RUA LUIS MACENTE","RUA JAGUARUNA","R. NEO MARTINS","R. CURT. LISENBERG"]},"52":{"ruas":["RUA LUIS CELINI","RUA SANTO ANTONELI","RUA PASCHOAL TREVISAN","RUA AQUIDABAM"]},"53":{"ruas":["RUA FRANCISCO PALMA","RUA MARIALVA","RUA AQUIDABAM","RUA PASCHOAL TREVISAN","AVENIDA MANDAGUARI"]},"54":{"ruas":["RUA FRANCISCO PALMA","RUA ITAMBI","RUA ITUELA","AVENIDA MANDAGUARI","RUA IPATINGA"]}},"ar":0.2666};
+const KEY='territorios_v3', TKEY='territorios_tema', SCFG='territorios_sync_cfg';
+const KEYS=Object.keys(MAP.terr).sort((a,b)=>+a-+b);
+const CIDADE='Marialva - PR';
+const today=()=>new Date().toISOString().slice(0,10);
+const br=d=>d? d.split('-').reverse().join('/') : '—';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const initials=n=>n.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+function imgSrc(n){ return (window.IMGS && IMGS[n]) ? IMGS[n] : 'mapas/'+n+'.png'; }
+
+/* tema */
+const SUN='<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>';
+const MOON='<path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>';
+function applyTheme(t){ document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('icoTheme').innerHTML=t==='dark'?SUN:MOON;
+  try{ localStorage.setItem(TKEY,t); }catch(e){} }
+(function(){ let t=null; try{ t=localStorage.getItem(TKEY); }catch(e){}
+  if(!t) t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'; applyTheme(t); })();
+
+/* armazenamento */
+const Store={
+  async load(){ if(window.storage){ try{ const r=await window.storage.get(KEY,false); if(r&&r.value) return JSON.parse(r.value); }catch(e){} }
+    try{ const s=localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){} return null; },
+  async save(d){ const t=JSON.stringify(d);
+    if(window.storage){ try{ await window.storage.set(KEY,t,false); }catch(e){} }
+    try{ localStorage.setItem(KEY,t); }catch(e){} }
+};
+let DB=null, cur=null, filter='all', term='', gz=1, saveT=null;
+const dirty=new Set();
+let SY={url:'',g:'',since:0}, syncing=false, syncT=null, lastOk=0;
+try{ const c=localStorage.getItem(SCFG); if(c) SY=Object.assign(SY,JSON.parse(c)); }catch(e){}
+function saveCfg(){ try{ localStorage.setItem(SCFG,JSON.stringify(SY)); }catch(e){} }
+
+function vazio(){ return {name:'',resp:'',assign:'',start:'',end:'',stop:'',notes:'',addr:'',started:false,ts:0}; }
+function seed(){ const t={}; KEYS.forEach(k=>t[k]=vazio());
+  return {v:3,t,p:{items:[],ts:0},s:{items:[],ts:0}}; }
+function persist(){ clearTimeout(saveT); saveT=setTimeout(()=>Store.save(DB),250); }
+function touch(k){ if(!k) return; DB.t[k].ts=Date.now(); dirty.add(k); persist(); schedule(); }
+
+function status(k){ const t=DB.t[k]; if(t.end) return 'done'; return t.started? 'wip':'new'; }
+const rotulo={new:'A iniciar',wip:'Em andamento',done:'Concluído'};
+function nomeDe(k){ return DB.t[k].name || ('Território '+k); }
+function endereco(k){ return (DB.t[k].addr||'').trim() || (MAP.terr[k].ruas||[])[0] || CIDADE; }
+
+/* topo e resumo */
+function renderSummary(){
+  let d=0,w=0,n=0,r=0;
+  KEYS.forEach(k=>{ const s=status(k); if(s==='done')d++; else if(s==='wip')w++; else n++;
+    if(DB.t[k].resp) r++; });
+  const pct=KEYS.length? d/KEYS.length*100:0;
+  hPct.textContent=Math.round(pct)+'%'; hDone.textContent=d+'/'+KEYS.length;
+  hWip.textContent=w; hNew.textContent=n; hResp.textContent=r;
+  ringArc.setAttribute('stroke-dashoffset',String(245-245*pct/100));
+  coverBar.style.width=pct.toFixed(1)+'%'; coverPct.textContent=Math.round(pct)+'%';
+
+  const ppl=people();
+  byResp.innerHTML = ppl.length? ppl.map(p=>{
+    const ks=KEYS.filter(k=>(DB.t[k].resp||'').trim()===p);
+    const f=ks.filter(k=>status(k)==='done').length;
+    return `<div style="display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line)">
+      <span style="width:32px;height:32px;border-radius:50%;background:var(--acc-soft);color:var(--acc);display:grid;place-items:center;font-size:11.5px;font-weight:800;flex:none">${esc(initials(p))}</span>
+      <span style="flex:1;min-width:0"><span style="display:block;font-size:13.5px;font-weight:700">${esc(p)}</span>
+      <span style="display:block;font-size:11.5px;color:var(--muted)">${ks.join(', ')}</span></span>
+      <span style="font-size:12.5px;font-weight:700;color:${f===ks.length?'var(--acc)':'var(--muted)'}">${f}/${ks.length}</span></div>`;
+  }).join('') : '<p style="color:var(--muted);font-size:13.5px;margin:0">Nenhum território designado ainda.</p>';
+
+  const done=KEYS.filter(k=>DB.t[k].end).sort((a,b)=>DB.t[b].end.localeCompare(DB.t[a].end)).slice(0,8);
+  recent.innerHTML = done.length? done.map(k=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px">
+      <span style="font-weight:600">${k} · ${esc(nomeDe(k))}</span>
+      <span style="color:var(--muted)">${br(DB.t[k].end)}</span></div>`).join('')
+    : '<p style="color:var(--muted);font-size:13.5px;margin:0">Nenhum território concluído ainda.</p>';
+}
+
+/* lista */
+function renderBoard(){
+  const ks=KEYS.filter(k=>filter==='all'|| (filter==='free'? !DB.t[k].resp : status(k)===filter))
+    .filter(k=>!term || (k+' '+nomeDe(k)+' '+(DB.t[k].resp||'')).toLowerCase().includes(term));
+  if(!ks.length){ board.innerHTML='<div class="empty">Nenhum território encontrado.</div>'; return; }
+  board.innerHTML='';
+  ks.forEach(k=>{
+    const t=DB.t[k], st=status(k);
+    const b=document.createElement('button'); b.className='trow'; b.dataset.st=st;
+    const sub = st==='done'? 'Concluído em '+br(t.end)
+              : st==='wip'? 'Iniciado em '+br(t.start)+(t.resp?' · '+t.resp:'')
+              : (t.resp? 'Designado a '+t.resp : 'Sem responsável');
+    b.innerHTML=`<span class="num">${k}</span>
+      <span class="bd"><span class="nm">${esc(nomeDe(k))}</span><span class="sub">${esc(sub)}</span></span>
+      <span class="tag">${rotulo[st]}</span>`;
+    b.addEventListener('click',()=>openT(k));
+    board.appendChild(b);
+  });
+}
+
+/* mapa geral */
+function renderGeral(){
+  const w=Math.round((geral.clientWidth||340)*gz*2.6);
+  geral.innerHTML=`<img src="${imgSrc('geral')}" width="${w}" height="${Math.round(w*MAP.ar)}" alt="Mapa geral">`;
+}
+gIn.addEventListener('click',()=>{ gz=Math.min(4,gz*1.4); renderGeral(); });
+gOut.addEventListener('click',()=>{ gz=Math.max(.5,gz/1.4); renderGeral(); });
+
+/* detalhe */
+function openT(k,push=true){
+  cur=k; const t=DB.t[k];
+  sDist.textContent=(t.resp? t.resp : 'Sem responsável');
+  sName.textContent=k+' · '+nomeDe(k);
+  fStart.value=t.start||''; fEnd.value=t.end||''; fName.value=t.name||'';
+  fResp.value=t.resp||''; fAssign.value=t.assign||''; fStop.value=t.stop||'';
+  fNotes.value=t.notes||''; fAddr.value=t.addr||'';
+  buildPeople(); renderStart(); renderMaps();
+  if(!sheet.classList.contains('open')){
+    sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden'; if(push) history.pushState({s:1},'');
+  }
+  sheet.scrollTop=0;
+}
+function closeSheet(){
+  sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true');
+  document.body.style.overflow=''; cur=null;
+  renderBoard(); renderSummary(); renderSaidas(); buildPeople();
+}
+function renderStart(){
+  const t=DB.t[cur], st=status(cur);
+  sPill.textContent=rotulo[st];
+  sPill.style.background = st==='done'?'var(--acc)': st==='wip'?'var(--amber-soft)':'var(--surface2)';
+  sPill.style.color = st==='done'?'var(--acc-t)': st==='wip'?'var(--amber)':'var(--muted)';
+  let h='';
+  if(st==='done'){
+    h=`<div class="infobox"><span class="bul" style="background:var(--acc)"></span>
+      <span class="tx">Território concluído<small>${br(t.start)} a ${br(t.end)}</small></span>
+      <button id="btnReabrir">Reabrir</button></div>`;
+  } else if(t.started){
+    h=`<div class="infobox"><span class="bul" style="background:var(--amber)"></span>
+      <span class="tx">Em andamento<small>Iniciado em ${br(t.start)}</small></span>
+      <button id="btnUndo">Desfazer</button></div>
+      <button class="bigbtn" id="btnDone"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Território concluído</button>`;
+  } else {
+    h=`<button class="bigbtn" id="btnStart"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Iniciar território</button>
+       <div style="height:9px"></div>
+       <button class="bigbtn ghost" id="btnDone"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Território concluído</button>`;
+  }
+  startbar.innerHTML=h;
+  const bs=document.getElementById('btnStart');
+  if(bs) bs.addEventListener('click',()=>{
+    t.started=true; if(!t.start) t.start=today();
+    touch(cur); fStart.value=t.start; renderStart(); toast('Iniciado em '+br(t.start));
+  });
+  const bd=document.getElementById('btnDone');
+  if(bd) bd.addEventListener('click',()=>{
+    t.started=true; if(!t.start) t.start=today();
+    t.end=today(); touch(cur); fStart.value=t.start; fEnd.value=t.end;
+    renderStart(); toast('Concluído em '+br(t.end));
+  });
+  const bu=document.getElementById('btnUndo');
+  if(bu) bu.addEventListener('click',()=>{ t.started=false; t.start='';
+    touch(cur); fStart.value=''; renderStart(); });
+  const bre=document.getElementById('btnReabrir');
+  if(bre) bre.addEventListener('click',()=>{ t.end=''; touch(cur); fEnd.value=''; renderStart(); toast('Território reaberto'); });
+}
+
+/* Google Maps */
+function posicao(){ return new Promise((res,rej)=>{ if(!navigator.geolocation) return rej();
+  navigator.geolocation.getCurrentPosition(p=>res(p.coords),rej,{enableHighAccuracy:true,timeout:8000,maximumAge:30000}); }); }
+async function abrirMaps(alvoTxt){
+  const alvo=encodeURIComponent(alvoTxt+', '+CIDADE);
+  let url='https://www.google.com/maps/search/?api=1&query='+alvo;
+  if(chkRota&&chkRota.checked){ toast('Localizando...');
+    try{ const c=await posicao();
+      url=`https://www.google.com/maps/dir/?api=1&origin=${c.latitude},${c.longitude}&destination=${alvo}&travelmode=driving`;
+    }catch(e){ toast('Sem localização — abrindo só o local'); } }
+  window.open(url,'_blank','noopener');
+}
+function renderMaps(){
+  const rs=MAP.terr[cur].ruas||[];
+  mapsMain.textContent=endereco(cur)+' · '+CIDADE;
+  btnMaps.onclick=()=>abrirMaps(endereco(cur));
+  ruas.innerHTML=rs.map(r=>`<button class="chip" data-r="${esc(r)}">${esc(r)}</button>`).join('');
+  ruas.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{
+    fAddr.value=b.dataset.r; DB.t[cur].addr=b.dataset.r; touch(cur); renderMaps(); toast('Endereço definido');
+  }));
+}
+try{ chkRota.checked=localStorage.getItem('territorios_rota')==='1'; }catch(e){}
+chkRota.addEventListener('change',()=>{ try{ localStorage.setItem('territorios_rota',chkRota.checked?'1':'0'); }catch(e){} });
+
+function people(){ return [...new Set(KEYS.map(k=>(DB.t[k].resp||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt')); }
+function buildPeople(){ document.getElementById('people').innerHTML=people().map(p=>`<option value="${esc(p)}">`).join(''); }
+
+/* ---------- pontos de saída ---------- */
+function sitems(){ return (DB.s.items||[]).filter(i=>!i.del); }
+function touchSaidas(){ DB.s.ts=Date.now(); dirty.add('@saidas'); persist(); schedule(); }
+let editS=null, pickSel=new Set();
+function renderSaidas(){
+  const l=sitems().sort((a,b)=>(a.data||'9999').localeCompare(b.data||'9999')||(a.nome||'').localeCompare(b.nome||''));
+  if(!l.length){ saidaList.innerHTML='<div class="empty">Nenhum ponto de saída cadastrado.<br>Toque em “Novo ponto de saída”.</div>'; return; }
+  saidaList.innerHTML=l.map(s=>{
+    const ts=(s.terr||[]).slice().sort((a,b)=>+a-+b);
+    const falta=ts.filter(k=>DB.t[k]&&status(k)!=='done').length;
+    const quando=[s.data?br(s.data):'', s.hora||''].filter(Boolean).join(' às ');
+    return `<div class="saida">
+      <div class="sh">
+        <span class="pin"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
+        <span class="tx"><b>${esc(s.nome||'Sem nome')}</b><small>${esc(s.end||'sem endereço')}${quando?' · '+quando:''}</small></span>
+      </div>
+      <div class="sg">
+        <div class="lbl">Territórios sugeridos ${ts.length? '· '+falta+' de '+ts.length+' por fazer':''}</div>
+        <div class="tchips">${ts.length? ts.map(k=>`<button class="tchip" data-k="${k}" data-st="${DB.t[k]?status(k):'new'}">${k} · ${esc(nomeDe(k))}</button>`).join('')
+          : '<span style="font-size:12.5px;color:var(--muted)">Nenhum território escolhido ainda.</span>'}</div>
+      </div>
+      <div class="sf">
+        <button class="btn" data-ed="${s.id}">Editar</button>
+        <button class="btn" data-map="${s.id}">Abrir no Maps</button>
+        <button class="btn primary" data-prog="${s.id}">Programar</button>
+      </div></div>`;
+  }).join('');
+  saidaList.querySelectorAll('.tchip').forEach(b=>b.addEventListener('click',()=>openT(b.dataset.k)));
+  saidaList.querySelectorAll('[data-ed]').forEach(b=>b.addEventListener('click',()=>openSaida(b.dataset.ed)));
+  saidaList.querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{
+    const s=sitems().find(x=>x.id===b.dataset.map); if(s) abrirMaps(s.end||s.nome||CIDADE); }));
+  saidaList.querySelectorAll('[data-prog]').forEach(b=>b.addEventListener('click',()=>{
+    const s=sitems().find(x=>x.id===b.dataset.prog); if(!s) return;
+    irPara('pgProg'); openProg(null, s);
+  }));
+}
+function openSaida(id){
+  editS=id||null;
+  const s=id? sitems().find(x=>x.id===id):null;
+  sTitle.textContent=s?'Editar ponto de saída':'Novo ponto de saída';
+  sDel.style.display=s?'':'none';
+  sNome.value=s?(s.nome||''):''; sEnd.value=s?(s.end||''):'';
+  sData.value=s?(s.data||''):''; sHora.value=s?(s.hora||''):'';
+  pickSel=new Set(s?(s.terr||[]):[]);
+  renderPick();
+  smodal.classList.add('open');
+}
+function renderPick(){
+  sPick.innerHTML=KEYS.map(k=>{
+    const st=status(k);
+    return `<button class="pick" data-k="${k}" aria-pressed="${pickSel.has(k)}">${k}<span class="s">${st==='done'?'feito':st==='wip'?'em curso':'&nbsp;'}</span></button>`;
+  }).join('');
+  sPick.querySelectorAll('.pick').forEach(b=>b.addEventListener('click',()=>{
+    const k=b.dataset.k;
+    if(pickSel.has(k)) pickSel.delete(k); else pickSel.add(k);
+    b.setAttribute('aria-pressed',String(pickSel.has(k)));
+    sCont.textContent=pickSel.size? pickSel.size+' escolhidos':'';
+  }));
+  sCont.textContent=pickSel.size? pickSel.size+' escolhidos':'';
+}
+sCancel.addEventListener('click',()=>{ smodal.classList.remove('open'); editS=null; });
+smodal.addEventListener('click',e=>{ if(e.target===smodal){ smodal.classList.remove('open'); editS=null; } });
+sSave.addEventListener('click',()=>{
+  if(!sNome.value.trim()){ toast('Dê um nome ao ponto de saída'); return; }
+  const d={nome:sNome.value.trim(),end:sEnd.value.trim(),data:sData.value,hora:sHora.value,
+           terr:[...pickSel].sort((a,b)=>+a-+b),ts:Date.now()};
+  if(editS) Object.assign(DB.s.items.find(x=>x.id===editS),d);
+  else DB.s.items.push(Object.assign({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)},d));
+  touchSaidas(); renderSaidas(); smodal.classList.remove('open'); editS=null; toast('Ponto de saída salvo');
+});
+sDel.addEventListener('click',async ()=>{
+  if(!await ask('Excluir este ponto de saída?','Excluir')) return;
+  const it=DB.s.items.find(x=>x.id===editS); if(it){ it.del=true; it.ts=Date.now(); }
+  touchSaidas(); renderSaidas(); smodal.classList.remove('open'); editS=null;
+});
+btnNewSaida.addEventListener('click',()=>openSaida(null));
+
+/* ---------- programação de campo ---------- */
+const WD=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+let progF='next', editP=null;
+function pitems(){ return (DB.p.items||[]).filter(i=>!i.del); }
+function touchProg(){ DB.p.ts=Date.now(); dirty.add('@prog'); persist(); schedule(); }
+function places(){ return [...new Set(pitems().map(i=>(i.place||'').trim()).filter(Boolean).concat(sitems().map(s=>s.nome)))].sort(); }
+function buildPlaces(){ document.getElementById('places').innerHTML=places().map(p=>`<option value="${esc(p)}">`).join(''); }
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function weekRange(){ const n=new Date(); n.setHours(0,0,0,0);
+  const a=new Date(n); a.setDate(n.getDate()-((n.getDay()+6)%7)); const b=new Date(a); b.setDate(a.getDate()+6);
+  return [iso(a),iso(b)]; }
+function listaProg(){
+  let l=pitems().filter(i=>i.date); const h=today();
+  if(progF==='next') l=l.filter(i=>i.date>=h);
+  if(progF==='week'){ const [a,b]=weekRange(); l=l.filter(i=>i.date>=a&&i.date<=b); }
+  return l.sort((a,b)=> a.date===b.date ? (a.time||'').localeCompare(b.time||'') : a.date.localeCompare(b.date));
+}
+function renderProg(){
+  buildPlaces();
+  const l=listaProg(), dias={};
+  l.forEach(i=>{ (dias[i.date]=dias[i.date]||[]).push(i); });
+  const ch=Object.keys(dias).sort();
+  if(!ch.length){ progList.innerHTML='<div class="empty">Nenhuma saída programada.</div>'; return; }
+  progList.innerHTML=ch.map(k=>{
+    const [y,m,d]=k.split('-').map(Number), dt=new Date(y,m-1,d), n=dias[k].length;
+    return `<div class="day"><div class="dh">
+      <div class="num">${String(d).padStart(2,'0')}</div>
+      <div class="wd">${WD[dt.getDay()]}</div>
+      <div class="mo">${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}</div>
+      <div class="cnt">${n} saída${n>1?'s':''}</div></div>
+      ${dias[k].map(i=>`<button class="slot" data-id="${i.id}">
+        <span class="time">${i.time||'--:--'}</span>
+        <span class="pl">${esc(i.place||'Local a definir')}</span>
+        <span class="dr">${esc(i.dir||'Dirigente a definir')}</span>
+        ${i.terr?`<span class="tg">Terr. ${esc(i.terr)}</span>`:''}</button>`).join('')}</div>`;
+  }).join('');
+  progList.querySelectorAll('.slot').forEach(b=>b.addEventListener('click',()=>openProg(b.dataset.id)));
+}
+function pontosOptions(sel){
+  return '<option value="">— livre —</option>'+sitems().map(s=>
+    `<option value="${s.id}"${sel===s.id?' selected':''}>${esc(s.nome)}</option>`).join('');
+}
+function terrOptions(sel, sugeridos){
+  let html='<option value="">— sem território —</option>';
+  const marca=k=>`${k} · ${esc(nomeDe(k))}${status(k)==='done'?' (concluído)':''}`;
+  if(sugeridos&&sugeridos.length){
+    html+='<optgroup label="Sugeridos por proximidade">'+
+      sugeridos.map(k=>`<option value="${k}"${sel===k?' selected':''}>${marca(k)}</option>`).join('')+'</optgroup>';
+    html+='<optgroup label="Todos">';
+  }
+  html+=KEYS.filter(k=>!sugeridos||!sugeridos.includes(k))
+    .map(k=>`<option value="${k}"${sel===k?' selected':''}>${marca(k)}</option>`).join('');
+  if(sugeridos&&sugeridos.length) html+='</optgroup>';
+  return html;
+}
+function openProg(id, ponto){
+  editP=id||null;
+  const it=id? pitems().find(x=>x.id===id):null;
+  pTitle.textContent=it?'Editar saída':'Nova saída de campo';
+  pDel.style.display=it?'':'none';
+  const pid = it? (it.ponto||'') : (ponto? ponto.id : '');
+  pPonto.innerHTML=pontosOptions(pid);
+  pDate.value=it? it.date : (ponto&&ponto.data? ponto.data : today());
+  pTime.value=it? (it.time||'') : (ponto&&ponto.hora? ponto.hora : '09:00');
+  pPlace.value=it? (it.place||'') : (ponto? ponto.nome : (places()[0]||''));
+  pDir.value=it?(it.dir||''):'';
+  const s=sitems().find(x=>x.id===pid);
+  pTerr.innerHTML=terrOptions(it?(it.terr||''):'', s? (s.terr||[]).filter(k=>status(k)!=='done') : null);
+  buildPeople(); buildPlaces();
+  pmodal.classList.add('open');
+}
+pPonto.addEventListener('change',()=>{
+  const s=sitems().find(x=>x.id===pPonto.value);
+  if(s){ if(!pPlace.value.trim()) pPlace.value=s.nome; if(s.hora&&!pTime.value) pTime.value=s.hora; }
+  pTerr.innerHTML=terrOptions(pTerr.value, s? (s.terr||[]).filter(k=>status(k)!=='done') : null);
+});
+pCancel.addEventListener('click',()=>{ pmodal.classList.remove('open'); editP=null; });
+pmodal.addEventListener('click',e=>{ if(e.target===pmodal){ pmodal.classList.remove('open'); editP=null; } });
+btnNewProg.addEventListener('click',()=>openProg(null));
+pSave.addEventListener('click',()=>{
+  if(!pDate.value){ toast('Informe a data'); return; }
+  const d={date:pDate.value,time:pTime.value,place:pPlace.value.trim(),dir:pDir.value.trim(),
+           terr:pTerr.value,ponto:pPonto.value,ts:Date.now()};
+  if(editP) Object.assign(DB.p.items.find(x=>x.id===editP),d);
+  else DB.p.items.push(Object.assign({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)},d));
+  touchProg(); renderProg(); pmodal.classList.remove('open'); editP=null; toast('Saída salva');
+});
+pDel.addEventListener('click',async ()=>{
+  if(!await ask('Excluir esta saída da programação?','Excluir')) return;
+  const it=DB.p.items.find(x=>x.id===editP); if(it){ it.del=true; it.ts=Date.now(); }
+  touchProg(); renderProg(); pmodal.classList.remove('open'); editP=null;
+});
+progFilter.addEventListener('click',e=>{ const b=e.target.closest('.chip'); if(!b)return; progF=b.dataset.f;
+  [...progFilter.children].forEach(c=>c.setAttribute('aria-pressed',String(c===b))); renderProg(); });
+btnCopyProg.addEventListener('click',async ()=>{
+  const l=listaProg(); if(!l.length){ toast('Nada para copiar'); return; }
+  let txt='*PROGRAMAÇÃO DE CAMPO*\n', ult='';
+  l.forEach(i=>{
+    if(i.date!==ult){ const [y,m,d]=i.date.split('-').map(Number);
+      txt+=`\n*${WD[new Date(y,m-1,d).getDay()].toUpperCase()} — ${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}*\n`; ult=i.date; }
+    txt+=`${i.time||'--:--'} · ${i.place||'local a definir'}\n`;
+    txt+=`Dirigente: ${i.dir||'a definir'}${i.terr?` · Território ${i.terr} (${nomeDe(i.terr)})`:''}\n`;
+  });
+  try{ await navigator.clipboard.writeText(txt); toast('Programação copiada'); }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove(); toast('Programação copiada'); }
+});
+
+/* sincronização */
+function schedule(){ if(!SY.url||!SY.g) return; clearTimeout(syncT); syncT=setTimeout(()=>sync(true),2200); }
+function syncStatus(t,ok){ const d=document.getElementById('syncDot'); if(d){ d.textContent=t; d.style.color=ok?'var(--acc)':'var(--muted)'; } }
+function desde(ms){ const s=Math.round((Date.now()-ms)/1000);
+  if(s<60) return 'agora mesmo'; if(s<3600) return 'há '+Math.round(s/60)+' min';
+  if(s<86400) return 'há '+Math.round(s/3600)+' h'; return 'há '+Math.round(s/86400)+' dias'; }
+function mesclarLista(alvo, vindo){
+  const m={}; (alvo||[]).forEach(x=>m[x.id]=x);
+  let mudou=false;
+  (vindo||[]).forEach(x=>{ const a=m[x.id]; if(!a||(x.ts||0)>(a.ts||0)){ m[x.id]=x; mudou=true; } });
+  return {itens:Object.values(m),mudou};
+}
+async function sync(silent){
+  if(!SY.url||!SY.g){ if(!silent) toast('Preencha o endereço e o código'); return; }
+  if(syncing) return;
+  syncing=true; syncStatus('sincronizando...',false);
+  const info=document.getElementById('syncInfo');
+  const items=[...dirty].filter(k=>k.charAt(0)!=='@').map(k=>({k,ts:DB.t[k].ts||Date.now(),d:DB.t[k]}));
+  if(dirty.has('@prog')) items.push({k:'@prog',ts:DB.p.ts||Date.now(),d:{items:DB.p.items||[]}});
+  if(dirty.has('@saidas')) items.push({k:'@saidas',ts:DB.s.ts||Date.now(),d:{items:DB.s.items||[]}});
+  try{
+    if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(SY.url))
+      throw new Error('O endereço precisa terminar em /exec.');
+    const r=await fetch(SY.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},redirect:'follow',
+      body:JSON.stringify({a:'sync',g:SY.g,since:SY.since||0,items})});
+    const txt=await r.text();
+    let j=null; try{ j=JSON.parse(txt); }catch(e){}
+    if(!j){
+      if(/accounts\.google\.com|Sign in|login/i.test(txt))
+        throw new Error('O servidor pediu login. Na implantação, "Quem pode acessar" precisa ser "Qualquer pessoa".');
+      throw new Error('HTTP '+r.status+' — resposta inesperada: '+txt.slice(0,110).replace(/\s+/g,' '));
+    }
+    if(!j.ok) throw new Error('O servidor recusou: '+(j.err||'sem motivo'));
+    items.forEach(i=>dirty.delete(i.k));
+    let mud=0;
+    (j.items||[]).forEach(it=>{
+      if(it.k==='@prog'){ const r2=mesclarLista(DB.p.items,(it.d||{}).items);
+        if(r2.mudou){ DB.p.items=r2.itens; DB.p.ts=Date.now(); dirty.add('@prog'); mud++; } return; }
+      if(it.k==='@saidas'){ const r2=mesclarLista(DB.s.items,(it.d||{}).items);
+        if(r2.mudou){ DB.s.items=r2.itens; DB.s.ts=Date.now(); dirty.add('@saidas'); mud++; } return; }
+      if(!DB.t[it.k]) return;
+      if((it.ts||0)>(DB.t[it.k].ts||0)){ DB.t[it.k]=Object.assign(DB.t[it.k],it.d,{ts:it.ts}); mud++; }
+    });
+    SY.since=j.now||Date.now(); saveCfg(); persist(); lastOk=Date.now();
+    if(mud){ renderBoard(); renderSummary(); renderProg(); renderSaidas(); buildPeople();
+      if(cur){ renderStart(); renderMaps(); } }
+    syncStatus('sincronizado',true);
+    if(info) info.textContent='Última sincronização '+desde(lastOk)+(mud?` · ${mud} atualização(ões)`:' · tudo em dia');
+    if(!silent) toast(mud? mud+' atualização(ões) recebida(s)':'Tudo em dia');
+  }catch(err){
+    syncStatus('erro',false);
+    let msg=err&&err.message||String(err);
+    if(err instanceof TypeError||/Failed to fetch|NetworkError|Load failed/i.test(msg))
+      msg='Não consegui alcançar o servidor. Verifique a internet e o endereço.';
+    if(info){ info.textContent='⚠ '+msg; info.style.userSelect='text'; }
+    if(!silent) toast('Falha ao sincronizar — veja o motivo');
+  }
+  syncing=false;
+}
+
+/* confirmação */
+let askResolve=null;
+function ask(msg,ok){ return new Promise(res=>{ askMsg.textContent=msg; askYes.textContent=ok||'Confirmar';
+  askmodal.classList.add('open'); askResolve=res; }); }
+function closeAsk(v){ askmodal.classList.remove('open'); if(askResolve){ const r=askResolve; askResolve=null; r(v); } }
+askYes.addEventListener('click',()=>closeAsk(true));
+askNo.addEventListener('click',()=>closeAsk(false));
+askmodal.addEventListener('click',e=>{ if(e.target===askmodal) closeAsk(false); });
+
+/* controles */
+btnBack.addEventListener('click',()=>history.back());
+cfgBack.addEventListener('click',()=>history.back());
+window.addEventListener('popstate',()=>{
+  if(cfgsheet.classList.contains('open')){ cfgsheet.classList.remove('open'); document.body.style.overflow='';
+    renderBoard(); renderSummary(); return; }
+  if(sheet.classList.contains('open')) closeSheet();
+});
+btnReset.addEventListener('click',async ()=>{
+  if(!await ask('Apagar tudo deste território?','Apagar tudo')) return;
+  DB.t[cur]=vazio(); touch(cur); openT(cur,false); renderBoard(); renderSummary(); toast('Território zerado');
+});
+[['fStart','start'],['fEnd','end'],['fName','name'],['fResp','resp'],['fAssign','assign'],
+ ['fStop','stop'],['fNotes','notes'],['fAddr','addr']].forEach(([id,k])=>{
+  document.getElementById(id).addEventListener('input',e=>{
+    DB.t[cur][k]=e.target.value;
+    if(k==='start') DB.t[cur].started=!!e.target.value;
+    if(k==='resp'){ if(e.target.value && !DB.t[cur].assign){ DB.t[cur].assign=today(); fAssign.value=DB.t[cur].assign; }
+      sDist.textContent=e.target.value||'Sem responsável'; buildPeople(); }
+    if(k==='name') sName.textContent=cur+' · '+nomeDe(cur);
+    if(k==='addr') renderMaps();
+    touch(cur);
+    if(k==='start'||k==='end') renderStart();
+  });
+});
+filters.addEventListener('click',e=>{ const b=e.target.closest('.chip'); if(!b)return; filter=b.dataset.f;
+  [...filters.children].forEach(c=>c.setAttribute('aria-pressed',String(c===b))); renderBoard(); });
+document.getElementById('q').addEventListener('input',e=>{ term=e.target.value.trim().toLowerCase(); renderBoard(); });
+
+let sx=0,sy=0,sw=false;
+detail.addEventListener('touchstart',e=>{
+  if(e.target.closest('input,textarea,select,.chips')){ sw=false; return; }
+  sw=true; sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
+detail.addEventListener('touchend',e=>{
+  if(!sw) return; sw=false;
+  const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)<70||Math.abs(dy)>55) return;
+  const i=KEYS.indexOf(cur); openT(KEYS[(i+(dx<0?1:KEYS.length-1))%KEYS.length],false);
+});
+
+const TITLES={pgList:'Territórios',pgMap:'Mapa Geral',pgProg:'Programação',pgSaidas:'Saídas',pgSum:'Resumo'};
+function irPara(p){
+  [...tabs.children].forEach(x=>x.setAttribute('aria-selected',String(x.dataset.p===p)));
+  Object.keys(TITLES).forEach(id=>document.getElementById(id).classList.toggle('on',id===p));
+  coverTitle.textContent=TITLES[p];
+  document.querySelector('.cover').classList.toggle('compact', p==='pgProg'||p==='pgSaidas');
+  if(p==='pgMap') renderGeral();
+  if(p==='pgProg') renderProg();
+  if(p==='pgSaidas') renderSaidas();
+  if(p==='pgSum') renderSummary();
+  scrollTo({top:0});
+}
+tabs.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) irPara(b.dataset.p); });
+
+/* configurações */
+function markTheme(){ let p='auto'; try{ p=localStorage.getItem(TKEY+'_pref')||'auto'; }catch(e){}
+  [...cfgTheme.children].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===p))); }
+cfgTheme.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
+  try{ localStorage.setItem(TKEY+'_pref',b.dataset.t); }catch(err){}
+  if(b.dataset.t==='auto'){ try{ localStorage.removeItem(TKEY); }catch(err){}
+    applyTheme(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'); }
+  else applyTheme(b.dataset.t);
+  markTheme(); });
+btnTheme.addEventListener('click',()=>{ applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); markTheme(); });
+btnCfg.addEventListener('click',()=>{ cfgsheet.classList.add('open'); document.body.style.overflow='hidden';
+  cfgsheet.scrollTop=0; markTheme(); history.pushState({s:1},''); });
+document.getElementById('btnSyncSave').addEventListener('click',()=>{
+  SY.url=syUrl.value.trim(); SY.g=syG.value.trim().toLowerCase();
+  if(!SY.url||!SY.g){ toast('Preencha os dois campos'); return; }
+  SY.since=0; saveCfg(); KEYS.forEach(k=>{ if(DB.t[k].ts) dirty.add(k); });
+  dirty.add('@prog'); dirty.add('@saidas');
+  toast('Sincronização ligada'); sync(false); });
+document.getElementById('btnSync').addEventListener('click',()=>{
+  SY.url=syUrl.value.trim()||SY.url; SY.g=(syG.value.trim()||SY.g).toLowerCase(); saveCfg(); sync(false); });
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) sync(true); });
+setInterval(()=>sync(true),45000);
+addEventListener('online',()=>sync(true));
+addEventListener('resize',()=>{ if(document.getElementById('pgMap').classList.contains('on')) renderGeral(); });
+
+/* backup */
+btnExport.addEventListener('click',()=>{
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(DB)],{type:'application/json'}));
+  a.download=`territorios-${today()}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Arquivo salvo'); });
+btnImport.addEventListener('click',()=>fileIn.click());
+fileIn.addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=async ()=>{ try{ const d=JSON.parse(r.result); if(!d||!d.t) throw 0;
+      if(!await ask('Restaurar este arquivo? Os registros deste aparelho serão substituídos.','Restaurar')) return;
+      DB=merge(d); KEYS.forEach(k=>{DB.t[k].ts=Date.now(); dirty.add(k);});
+      DB.p.ts=Date.now(); DB.s.ts=Date.now(); dirty.add('@prog'); dirty.add('@saidas');
+      persist(); schedule(); renderBoard(); renderSummary(); renderProg(); renderSaidas(); toast('Restaurado');
+    }catch(err){ toast('Arquivo não reconhecido'); } fileIn.value=''; };
+  r.readAsText(f); });
+function merge(d){
+  const base=seed();
+  if(d.p&&Array.isArray(d.p.items)) base.p={items:d.p.items,ts:d.p.ts||0};
+  if(d.s&&Array.isArray(d.s.items)) base.s={items:d.s.items,ts:d.s.ts||0};
+  KEYS.forEach(k=>{ const s=d.t&&d.t[k]; if(!s)return;
+    base.t[k]={name:s.name||'',resp:s.resp||'',assign:s.assign||'',start:s.start||'',end:s.end||'',
+      stop:s.stop||'',notes:s.notes||'',addr:s.addr||'',started:!!s.started||!!s.start||!!s.end,ts:s.ts||0}; });
+  return base;
+}
+let tT=null;
+function toast(m){ const e=document.getElementById('toast'); e.textContent=m; e.classList.add('show');
+  clearTimeout(tT); tT=setTimeout(()=>e.classList.remove('show'),1800); }
+
+(async function(){
+  const s=await Store.load();
+  DB = s? merge(s) : seed();
+  if(!DB.p) DB.p={items:[],ts:0};
+  if(!DB.s) DB.s={items:[],ts:0};
+  if(!s) Store.save(DB);
+  renderBoard(); renderSummary(); buildPeople();
+  syUrl.value=SY.url||''; syG.value=SY.g||'';
+  if(SY.url&&SY.g){ syncStatus('ligada',true); sync(true); }
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
