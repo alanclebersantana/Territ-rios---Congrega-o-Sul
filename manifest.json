@@ -1,0 +1,22 @@
+{
+  "id": "/territorios/",
+  "name": "Territórios — Congregação Sul de Marialva",
+  "short_name": "Territórios",
+  "description": "Controle de territórios, saídas de campo e programação.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B4A34",
+  "theme_color": "#0B4A34",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "icons": [
+    { "src": "./icon-96.png",  "sizes": "96x96",   "type": "image/png", "purpose": "any" },
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
